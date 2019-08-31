@@ -145,6 +145,10 @@ class LITE_API RuntimeProgram {
   // ProgramDesc. Namely, if a new var created in some passes, its var_desc will
   // be added in vars_.
   void UpdateVarsOfProgram(cpp::ProgramDesc* desc);
+#ifdef LITE_WITH_NPU
+  ~RuntimeProgram();
+  std::vector<std::string> model_names_;
+#endif
 
  private:
   RuntimeProgram(const RuntimeProgram&) = delete;

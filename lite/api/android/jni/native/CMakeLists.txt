@@ -17,6 +17,8 @@ if (NOT LITE_ON_TINY_PUBLISH)
     # Unlike static library, module library has to link target to be able to work
     # as a single .so lib.
     target_link_libraries(paddle_lite_jni ${lib_DEPS} ${arm_kernels} ${npu_kernels})
+    set(LINK_FLAGS "-Wl,--version-script ${PADDLE_SOURCE_DIR}/lite/core/lite.map")
+    set_target_properties(paddle_lite_jni PROPERTIES LINK_FLAGS "${LINK_FLAGS}")
 else()
     add_library(paddle_lite_jni SHARED "")
     target_sources(paddle_lite_jni PUBLIC ${__lite_cc_files} paddle_lite_jni.cc tensor_jni.cc)

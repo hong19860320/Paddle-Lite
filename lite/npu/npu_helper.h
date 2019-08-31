@@ -43,6 +43,13 @@ class DeviceInfo {
     clients_.emplace(std::make_pair(name, std::move(client)));
   }
 
+  void Delete(const std::string& name) {
+    auto client_to_deleted = clients_.find(name);
+    if (client_to_deleted != clients_.end()) {
+      clients_.erase(client_to_deleted);
+    }
+  }
+
   void Clear() { clients_.clear(); }
 
   hiai::AiModelMngerClient* client(const std::string& model_name) const {
