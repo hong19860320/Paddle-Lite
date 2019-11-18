@@ -52,8 +52,8 @@ class SearchAlignedMatMulCompute
     bool x_transpose = param.transpose_X;
     bool y_transpose = param.transpose_Y;
     float alpha = param.alpha;
-    const auto x_dims = x->dims();
-    const auto y_dims = y->dims();
+    const auto& x_dims = x->dims();
+    const auto& y_dims = y->dims();
     const auto& x_lod = x->lod();
     const auto& y_lod = y->lod();
     const auto& x_lod_0 = x_lod[0];
@@ -70,9 +70,9 @@ class SearchAlignedMatMulCompute
     CHECK_EQ(X_K, Y_K) << "K of Input(X) and Input(Y) is not equal";
     int K = X_K;
 
-    const auto* x_data = x->data<float>();
-    const auto* y_data = y->data<float>();
-    auto* out_data = out->mutable_data<float>(TARGET(kCUDA));
+    auto x_data = x->data<float>();
+    auto y_data = y->data<float>();
+    auto out_data = out->mutable_data<float>(TARGET(kCUDA));
     auto x_stride = x_batch_size * x_inner_size;
     auto y_stride = y_batch_size * y_inner_size;
     auto out_stride = M * N;
@@ -80,13 +80,13 @@ class SearchAlignedMatMulCompute
     int ldb = y_transpose ? K : N;
     int ldc = N;
     for (int seq = 0; seq < seq_num; seq++) {
-      A_host_[seq] = x_data + seq * x_stride;
-      A_host_[seq + seq_num] = y_data + seq * y_stride;
+      A_host_[seq] = static_cast<float*>(x_data) + seq * x_stride;
+      A_host_[seq + seq_num] = static_cast<float*>(y_data) + seq * y_stride;
       A_host_[seq + seq_num * 2] = out_data + seq * out_stride;
     }
     cudaMemcpyAsync(A_dev_,
                     A_host_,
-                    3 * seq_num * sizeof(const float*),
+                    3 * seq_num * sizeof(float*),
                     cudaMemcpyDefault,
                     cuda_stream);
 
@@ -99,12 +99,12 @@ class SearchAlignedMatMulCompute
                        N,
                        K,
                        &alpha,
-                       A_dev_,
+                       static_cast<const float**>(A_dev_),
                        lda,
-                       A_dev_ + seq_num,
+                       static_cast<const float**>(A_dev_ + seq_num),
                        ldb,
                        &beta,
-                       A_dev_ + seq_num * 2,
+                       static_cast<const float**>(A_dev_ + seq_num * 2),
                        ldc,
                        seq_num);
   }

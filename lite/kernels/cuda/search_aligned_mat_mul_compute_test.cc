@@ -182,10 +182,10 @@ TEST(search_aligned_mat_mul_compute, normal) {
                 param.transpose_X = x_transpose;
                 param.transpose_Y = y_transpose;
                 std::unique_ptr<KernelContext> ctx(new KernelContext);
-                auto& context = ctx->As<CUDAContext>();
-                cudaStream_t stream;
-                cudaStreamCreate(&stream);
-                context.SetExecStream(stream);
+                auto& cuda_ctx = ctx->As<CUDAContext>();
+                cudaStream_t cuda_stream;
+                cudaStreamCreate(&cuda_stream);
+                cuda_ctx.SetExecStream(cuda_stream);
                 SearchAlignedMatMulCompute search_aligned_mat_mul;
                 search_aligned_mat_mul.SetParam(param);
                 search_aligned_mat_mul.SetContext(std::move(ctx));
