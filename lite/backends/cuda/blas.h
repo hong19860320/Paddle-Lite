@@ -90,6 +90,38 @@ class Blas : public lite::cuda::BlasBase {
                          C,
                          ldc));
   }
+
+  void batched_sgemm(cublasOperation_t transa,
+                     cublasOperation_t transb,
+                     int m,
+                     int n,
+                     int k,
+                     const T* alpha,
+                     const T* Aarray[],
+                     int lda,
+                     const T* Barray[],
+                     int ldb,
+                     const T* beta,
+                     T* Carray[],
+                     int ldc,
+                     int batch) const {
+    CHECK_EQ(CUBLAS_STATUS_SUCCESS,
+             cublasSgemmBatched(handle_,
+                                transa,
+                                transb,
+                                m,
+                                n,
+                                k,
+                                alpha,
+                                Aarray,
+                                lda,
+                                Barray,
+                                ldb,
+                                beta,
+                                Carray,
+                                ldc,
+                                batch));
+  }
 };
 
 }  // namespace cuda
