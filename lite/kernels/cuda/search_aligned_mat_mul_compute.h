@@ -41,10 +41,10 @@ class SearchAlignedMatMulCompute
   void Run() override {
     auto& param = this->Param<param_t>();
     CHECK(ctx_) << "running context should be set first";
-    auto& ctx = this->ctx_->template As<CUDAContext>();
-    CHECK(ctx.cublas_fp32()) << "blas should init first";
-    auto& blas = *ctx.cublas_fp32();
-    auto cuda_stream = ctx.exec_stream();
+    auto& cuda_ctx = ctx_->template As<CUDAContext>();
+    CHECK(cuda_ctx.cublas_fp32()) << "blas should init first";
+    auto& cuda_blas = *cuda_ctx.cublas_fp32();
+    auto cuda_stream = cuda_ctx.exec_stream();
 
     auto x = param.X;
     auto y = param.Y;
@@ -80,8 +80,8 @@ class SearchAlignedMatMulCompute
     int ldb = y_transpose ? K : N;
     int ldc = N;
     for (int seq = 0; seq < seq_num; seq++) {
-      A_host_[seq] = static_cast<float*>(x_data) + seq * x_stride;
-      A_host_[seq + seq_num] = static_cast<float*>(y_data) + seq * y_stride;
+      A_host_[seq] = const_cast<float*>(x_data) + seq * x_stride;
+      A_host_[seq + seq_num] = const_cast<float*>(y_data) + seq * y_stride;
       A_host_[seq + seq_num * 2] = out_data + seq * out_stride;
     }
     cudaMemcpyAsync(A_dev_,
@@ -93,20 +93,20 @@ class SearchAlignedMatMulCompute
     cublasOperation_t transa = x_transpose ? CUBLAS_OP_T : CUBLAS_OP_N;
     cublasOperation_t transb = y_transpose ? CUBLAS_OP_T : CUBLAS_OP_N;
     float beta = 0.f;
-    blas.batched_sgemm(transa,
-                       transb,
-                       M,
-                       N,
-                       K,
-                       &alpha,
-                       static_cast<const float**>(A_dev_),
-                       lda,
-                       static_cast<const float**>(A_dev_ + seq_num),
-                       ldb,
-                       &beta,
-                       static_cast<const float**>(A_dev_ + seq_num * 2),
-                       ldc,
-                       seq_num);
+    cuda_blas.batched_sgemm(transb,
+                            transa,
+                            N,
+                            M,
+                            K,
+                            &alpha,
+                            const_cast<const float**>(A_dev_ + seq_num),
+                            ldb,
+                            const_cast<const float**>(A_dev_),
+                            lda,
+                            &beta,
+                            A_dev_ + seq_num * 2,
+                            ldc,
+                            seq_num);
   }
 
   ~SearchAlignedMatMulCompute() {

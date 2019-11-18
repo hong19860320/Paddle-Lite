@@ -68,12 +68,12 @@ void search_aligned_mat_mul_compute_ref(const operators::MatMulParam& param) {
         for (int l = 0; l < K; l++) {
           T av;
           T bv;
-          if (trans_a) {
+          if (x_transpose) {
             av = a[l * lda + i];
           } else {
             av = a[i * lda + l];
           }
-          if (trans_b) {
+          if (y_transpose) {
             bv = b[j * ldb + l];
           } else {
             bv = b[l * ldb + j];
@@ -87,6 +87,7 @@ void search_aligned_mat_mul_compute_ref(const operators::MatMulParam& param) {
 }
 
 TEST(search_aligned_mat_mul_compute, normal) {
+  Env<TargetType::kCUDA>::Init();
   for (int seq_num : {1, 2}) {
     for (int x_batch_size : {1, 3}) {
       for (int x_inner_size : {1, 5}) {
@@ -163,11 +164,11 @@ TEST(search_aligned_mat_mul_compute, normal) {
                 auto y_host_data = y_host.mutable_data<float>();
                 auto out_host_data = out_host.mutable_data<float>();
                 auto out_ref_data = out_ref.mutable_data<float>();
-                for (int i = 0; i < x_host.numel(); i++) {
-                  x_host_data[i] = 1.0f;
+                for (int i = 0; i < x_host.dims().production(); i++) {
+                  x_host_data[i] = i * 0.125f;
                 }
-                for (int i = 0; i < y_host.numel(); i++) {
-                  y_host_data[i] = 1.0f;
+                for (int i = 0; i < y_host.dims().production(); i++) {
+                  y_host_data[i] = i * 0.5f;
                 }
                 x_dev.Assign<float, lite::DDim, TARGET(kCUDA)>(x_host_data,
                                                                x_host.dims());
@@ -183,9 +184,9 @@ TEST(search_aligned_mat_mul_compute, normal) {
                 param.transpose_Y = y_transpose;
                 std::unique_ptr<KernelContext> ctx(new KernelContext);
                 auto& cuda_ctx = ctx->As<CUDAContext>();
-                cudaStream_t cuda_stream;
-                cudaStreamCreate(&cuda_stream);
-                cuda_ctx.SetExecStream(cuda_stream);
+                cuda_ctx.InitOnce();
+                int dev_id = TargetWrapper<TargetType::kCUDA>::GetCurDevice();
+                cuda_ctx.Init(dev_id);
                 SearchAlignedMatMulCompute search_aligned_mat_mul;
                 search_aligned_mat_mul.SetParam(param);
                 search_aligned_mat_mul.SetContext(std::move(ctx));
@@ -200,10 +201,10 @@ TEST(search_aligned_mat_mul_compute, normal) {
                 param.X = &x_host;
                 param.Y = &y_host;
                 param.Out = &out_ref;
-                search_aligned_mat_mul_compute_ref(param);
+                search_aligned_mat_mul_compute_ref<float>(param);
                 // verify result
                 for (int i = 0; i < out_ref.dims().production(); i++) {
-                  EXPECT_NEAR(out_host_data[i], out_ref_data[i], 1e-3);
+                  EXPECT_NEAR(out_host_data[i], out_ref_data[i], 1e-5);
                 }
               }
             }
