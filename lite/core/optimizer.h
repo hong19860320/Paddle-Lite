@@ -55,7 +55,8 @@ class Optimizer {
 
     if (passes.empty()) {
       std::vector<std::string> passes_local{
-          {"lite_quant_dequant_fuse_pass",     //
+          {"graph_visualze",
+           "lite_quant_dequant_fuse_pass",     //
            "lite_conv_elementwise_fuse_pass",  // conv-elemwise-bn
            "lite_conv_bn_fuse_pass",           //
            "lite_conv_elementwise_fuse_pass",  // conv-bn-elemwise
