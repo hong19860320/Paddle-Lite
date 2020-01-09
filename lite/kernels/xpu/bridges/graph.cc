@@ -20,7 +20,7 @@ namespace paddle {
 namespace lite {
 namespace subgraph {
 namespace xpu {
-
+/*
 int Graph::Add(const std::string& name, std::shared_ptr<Node> node) {
   auto it = nodes_.find(name);
   if (it != nodes_.end()) {
@@ -87,6 +87,7 @@ std::shared_ptr<Node> Graph::Add(const std::string& name,
       name, CvtShape<xtcl::xIndexExpr>(shape), CvtPrecisionType(precision))));
   return node;
 }
+*/
 
 }  // namespace xpu
 }  // namespace subgraph

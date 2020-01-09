@@ -28,6 +28,7 @@ namespace lite {
 namespace subgraph {
 namespace xpu {
 
+#if 0
 // Graph and node is defined to collect all of converted XTCL IR nodes
 class Node {
  public:
@@ -177,6 +178,38 @@ class Graph {
  private:
   std::unordered_map<std::string, std::vector<std::shared_ptr<Node>>> nodes_;
 };
+#endif
+
+typedef enum {
+  UNK = 0,
+  ANY,
+  BOOL,
+  INT8,
+  UINT8,
+  INT16,
+  UINT16,
+  INT32,
+  UINT32,
+  FP16,
+  FP32,
+  FP64,
+  NUM
+} nn_data_type;
+typedef enum { UNK = 0, ANY, NCHW, NHWC, NUM } nn_data_layout;
+
+void *nnCreateContext();
+int32_t nnReleaseContext(void *ctx);
+void *nnCreateGraph(void *ctx, int32_t *errcode);
+int32_t nnReleaseGraph(void *graph);
+void *nnAddData(void *graph,
+                char *name,
+                nn_data_type data_type,
+                int64_t *dims,
+                size_t size_of_dims);
+void *nnAddConst(void *graph, char *name);
+void *nnAddRelu(void *graph, char *name);
+void *nnGetNode(void *graph, char *name);
+void *nnHasNode(void *graph, char *name);
 
 }  // namespace xpu
 }  // namespace subgraph
