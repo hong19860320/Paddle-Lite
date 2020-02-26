@@ -89,6 +89,7 @@ std::vector<Place> ParserValidPlaces() {
   for (auto& target_repr : target_reprs) {
     if (target_repr == "arm") {
       valid_places.emplace_back(TARGET(kARM));
+      valid_places.emplace_back(TARGET(kARM), PRECISION(kInt32));
     } else if (target_repr == "opencl") {
       valid_places.emplace_back(
           Place{TARGET(kOpenCL), PRECISION(kFloat), DATALAYOUT(kImageDefault)});
