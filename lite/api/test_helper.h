@@ -19,7 +19,7 @@
 #include <time.h>
 
 // for eval
-DEFINE_string(model_dir, "", "model dir");
+DEFINE_string(model_path, "", "model path");
 DEFINE_int32(warmup, 0, "warmup times");
 DEFINE_int32(repeats, 1, "repeats times");
 DEFINE_int32(power_mode,
