@@ -50,6 +50,9 @@ int ActConverter(void* ctx, OpLite* op, KernelBase* kernel) {
   } else if (op_type == "tanh") {
     graph->Add(out_name,
                graph->builder_.CreateUnaryOp("tanh", *x_node->data()));
+  } else if (op_type == "sigmoid") {
+    graph->Add(out_name,
+               graph->builder_.CreateUnaryOp("sigmoid", *x_node->data()));
   } else if (op_type == "gelu") {
     graph->Add(out_name, graph->builder_.CreateGelu(*x_node->data()));
   } else {
@@ -67,4 +70,7 @@ int ActConverter(void* ctx, OpLite* op, KernelBase* kernel) {
 
 REGISTER_SUBGRAPH_BRIDGE(relu, kXPU, paddle::lite::subgraph::xpu::ActConverter);
 REGISTER_SUBGRAPH_BRIDGE(tanh, kXPU, paddle::lite::subgraph::xpu::ActConverter);
+REGISTER_SUBGRAPH_BRIDGE(sigmoid,
+                         kXPU,
+                         paddle::lite::subgraph::xpu::ActConverter);
 REGISTER_SUBGRAPH_BRIDGE(gelu, kXPU, paddle::lite::subgraph::xpu::ActConverter);
