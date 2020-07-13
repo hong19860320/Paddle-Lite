@@ -57,7 +57,7 @@ add_operator(flatten_op basic SRCS flatten_op.cc DEPS ${op_DEPS})
 add_operator(negative_op extra SRCS negative_op.cc DEPS ${op_DEPS})
 add_operator(crop_op extra SRCS crop_op.cc DEPS ${op_DEPS})
 add_operator(assign_op extra SRCS assign_op.cc DEPS ${op_DEPS})
-add_operator(power_op extra SRCS power_op.cc DEPS ${op_DEPS})
+add_operator(pow_op extra SRCS pow_op.cc DEPS ${op_DEPS})
 add_operator(group_norm_op extra SRCS group_norm_op.cc DEPS ${op_DEPS})
 add_operator(norm_op extra SRCS norm_op.cc DEPS ${op_DEPS})
 

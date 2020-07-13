@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "lite/operators/power_op.h"
+#include "lite/operators/pow_op.h"
 #include "lite/core/op_lite.h"
 #include "lite/core/op_registry.h"
 #include "lite/core/tensor.h"
@@ -21,25 +21,29 @@ namespace paddle {
 namespace lite {
 namespace operators {
 
-bool PowerOp::CheckShape() const {
+bool PowOp::CheckShape() const {
   CHECK_OR_FALSE(param_.X);
   CHECK_OR_FALSE(param_.Out);
   return true;
 }
 
-bool PowerOp::InferShapeImpl() const {
+bool PowOp::InferShapeImpl() const {
   param_.Out->Resize(param_.X->dims());
   return true;
 }
 
-bool PowerOp::AttachImpl(const cpp::OpDesc &op_desc, lite::Scope *scope) {
+bool PowOp::AttachImpl(const cpp::OpDesc &op_desc, lite::Scope *scope) {
   auto X = op_desc.Input("X").front();
   auto Out = op_desc.Output("Out").front();
   param_.X = scope->FindVar(X)->GetMutable<lite::Tensor>();
   param_.Out = scope->FindVar(Out)->GetMutable<lite::Tensor>();
-  param_.scale = op_desc.GetAttr<float>("scale");
-  param_.shift = op_desc.GetAttr<float>("shift");
-  param_.power = op_desc.GetAttr<float>("power");
+  if (op_desc.HasAttr("scale")) {
+    param_.scale = op_desc.GetAttr<float>("scale");
+  }
+  if (op_desc.HasAttr("shift")) {
+    param_.shift = op_desc.GetAttr<float>("shift");
+  }
+  param_.power = op_desc.GetAttr<float>("factor");
   CHECK(param_.X);
   CHECK(param_.Out);
 
@@ -50,4 +54,4 @@ bool PowerOp::AttachImpl(const cpp::OpDesc &op_desc, lite::Scope *scope) {
 } /* namespace lite */
 } /* namespace paddle */
 
-REGISTER_LITE_OP(power, paddle::lite::operators::PowerOp);
+REGISTER_LITE_OP(pow, paddle::lite::operators::PowOp);

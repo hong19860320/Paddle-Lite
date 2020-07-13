@@ -12,34 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "lite/kernels/arm/power_compute.h"
-#include "lite/backends/arm/math/funcs.h"
+#pragma once
+#include "lite/core/kernel.h"
+#include "lite/core/op_registry.h"
 
 namespace paddle {
 namespace lite {
 namespace kernels {
 namespace arm {
 
-void PowerCompute::Run() {
-  auto& param = Param<operators::PowerParam>();
-  const float* x_data = param.X->data<float>();
-  float* output_data = param.Out->mutable_data<float>();
-  DDim x_dims = param.X->dims();
-  float scale = param.scale;
-  float shift = param.shift;
-  float power = param.power;
+class PowCompute : public KernelLite<TARGET(kARM), PRECISION(kFloat)> {
+ public:
+  void Run() override;
 
-  lite::arm::math::power(
-      x_data, output_data, x_dims.production(), scale, shift, power);
-}
+  virtual ~PowCompute() = default;
+};
 
 } /* namespace arm */
 } /* namespace kernels */
 } /* namespace lite */
 } /* namespace paddle */
-
-REGISTER_LITE_KERNEL(
-    power, kARM, kFloat, kNCHW, paddle::lite::kernels::arm::PowerCompute, def)
-    .BindInput("X", {LiteType::GetTensorTy(TARGET(kARM))})
-    .BindOutput("Out", {LiteType::GetTensorTy(TARGET(kARM))})
-    .Finalize();

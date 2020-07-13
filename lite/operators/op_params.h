@@ -205,13 +205,13 @@ struct StackParam : ParamBase {
   int axis{0};
 };
 
-// For Power Op
-struct PowerParam : ParamBase {
+// For Pow Op
+struct PowParam : ParamBase {
   const lite::Tensor* X{};
   lite::Tensor* Out{};
 
-  float scale{};
-  float shift{};
+  float scale{1.0f};
+  float shift{0.0f};
   float power{};
 };
 

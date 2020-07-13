@@ -71,7 +71,7 @@ void compute_across_channels<float>(const float* din,
               din_ptr[k * channel_size + idx] * din_ptr[k * channel_size + idx];
         }
         sum = k + sum * alpha;
-        dout_ch_ptr[0] = din_ch_ptr[0] * pow(sum, -beta);
+        dout_ch_ptr[0] = din_ch_ptr[0] * std::pow(sum, -beta);
         dout_ch_ptr++;
         din_ch_ptr++;
         idx++;

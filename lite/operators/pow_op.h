@@ -23,11 +23,11 @@ namespace paddle {
 namespace lite {
 namespace operators {
 
-class PowerOp : public OpLite {
+class PowOp : public OpLite {
  public:
-  PowerOp() {}
+  PowOp() {}
 
-  explicit PowerOp(const std::string &op_type) : OpLite(op_type) {}
+  explicit PowOp(const std::string &op_type) : OpLite(op_type) {}
 
   bool CheckShape() const override;
 
@@ -37,7 +37,7 @@ class PowerOp : public OpLite {
 
   void AttachKernel(KernelBase *kernel) override { kernel->SetParam(param_); }
 
-  std::string DebugString() const override { return "power"; }
+  std::string DebugString() const override { return "pow"; }
 
 #ifdef LITE_WITH_PROFILE
   void GetOpRuntimeInfo(paddle::lite::profile::OpCharacter *ch) {
@@ -49,7 +49,7 @@ class PowerOp : public OpLite {
 #endif
 
  private:
-  mutable PowerParam param_;
+  mutable PowParam param_;
 };
 
 } /* namespace operators */

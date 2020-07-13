@@ -13,22 +13,21 @@
 // limitations under the License.
 
 #pragma once
-#include "lite/core/kernel.h"
-#include "lite/core/op_registry.h"
 
 namespace paddle {
 namespace lite {
-namespace kernels {
 namespace arm {
+namespace math {
 
-class PowerCompute : public KernelLite<TARGET(kARM), PRECISION(kFloat)> {
- public:
-  void Run() override;
+template <typename T>
+void pow(const T* din,
+         T* dout,
+         const int num,
+         float scale_,
+         float shift_,
+         float power_);
 
-  virtual ~PowerCompute() = default;
-};
-
+} /* namespace math */
 } /* namespace arm */
-} /* namespace kernels */
 } /* namespace lite */
 } /* namespace paddle */

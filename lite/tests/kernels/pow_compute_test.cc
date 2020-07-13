@@ -20,7 +20,7 @@
 namespace paddle {
 namespace lite {
 
-class PowerComputeTester : public arena::TestCase {
+class PowComputeTester : public arena::TestCase {
  protected:
   // common attributes for this op.
   std::string input_ = "X";
@@ -31,11 +31,11 @@ class PowerComputeTester : public arena::TestCase {
   DDim dims_{{5, 2}};
 
  public:
-  PowerComputeTester(const Place& place,
-                     const std::string& alias,
-                     float scale,
-                     float shift,
-                     float power)
+  PowComputeTester(const Place& place,
+                   const std::string& alias,
+                   float scale,
+                   float shift,
+                   float power)
       : TestCase(place, alias), scale_(scale), shift_(shift), power_(power) {}
 
   void RunBaseline(Scope* scope) override {
@@ -72,12 +72,12 @@ class PowerComputeTester : public arena::TestCase {
   }
 };
 
-void test_power(Place place) {
+void test_pow(Place place) {
   for (float scale : {0.923, 2., 1.2}) {
     for (float shift : {1., 0., 1.2331}) {
       for (float power : {1., 1.2, 1.6}) {
         std::unique_ptr<arena::TestCase> tester(
-            new PowerComputeTester(place, "def", scale, shift, power));
+            new PowComputeTester(place, "def", scale, shift, power));
         arena::Arena arena(std::move(tester), place, 2e-4);
         arena.TestPrecision();
       }
@@ -85,13 +85,13 @@ void test_power(Place place) {
   }
 }
 
-TEST(Power, precision) {
+TEST(Pow, precision) {
 // #ifdef LITE_WITH_X86
 //   Place place(TARGET(kX86));
 // #endif
 #ifdef LITE_WITH_ARM
   Place place(TARGET(kARM));
-  test_power(place);
+  test_pow(place);
 #endif
 }
 
