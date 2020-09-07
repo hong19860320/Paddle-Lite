@@ -99,12 +99,12 @@ class DeviceInfo {
   // LITE_POWER_HIGH stands for using big cores,
   // LITE_POWER_LOW stands for using small core,
   // LITE_POWER_FULL stands for using all cores
-  static thread_local lite_api::PowerMode mode_;
-  static thread_local ARMArch arch_;
-  static thread_local int mem_size_;
-  static thread_local std::vector<int> active_ids_;
-  static thread_local TensorLite workspace_;
-  static thread_local int64_t count_;
+  static THREAD_LOCAL lite_api::PowerMode mode_;
+  static THREAD_LOCAL ARMArch arch_;
+  static THREAD_LOCAL int mem_size_;
+  static THREAD_LOCAL std::vector<int> active_ids_;
+  static THREAD_LOCAL TensorLite workspace_;
+  static THREAD_LOCAL int64_t count_;
 
   void SetDotInfo(int argc, ...);
   void SetFP16Info(int argc, ...);

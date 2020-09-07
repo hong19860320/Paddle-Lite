@@ -14,6 +14,8 @@ WITH_CV=OFF
 WITH_LOG=ON
 # controls whether to throw the exception when error occurs, default is OFF 
 WITH_EXCEPTION=OFF
+# controls whether to enable using TLS(Thread Local Storage, such C++ keywords 'thread_local' since C++11), default is ON
+WITH_TLS=ON
 # absolute path of Paddle-Lite.
 workspace=$PWD/$(dirname $0)/../../
 # options of striping lib according to input model.
@@ -75,6 +77,7 @@ function make_ios {
             -DLITE_WITH_X86=OFF \
             -DLITE_WITH_LOG=$WITH_LOG \
             -DLITE_WITH_EXCEPTION=$WITH_EXCEPTION \
+            -DLITE_WITH_TLS=$WITH_TLS \
             -DLITE_BUILD_TAILOR=$WITH_STRIP \
             -DLITE_OPTMODEL_DIR=$OPTMODEL_DIR \
             -DARM_TARGET_ARCH_ABI=$arch \
@@ -88,29 +91,30 @@ function make_ios {
 
 
 function print_usage {
-    echo "----------------------------------------------------------------------------------------------------------------------------------------"
-    echo -e "| Methods of compiling Padddle-Lite iOS library:                                                                                       |"
-    echo "----------------------------------------------------------------------------------------------------------------------------------------"
-    echo -e "|  compile iOS armv8 library:                                                                                                          |"
-    echo -e "|     ./lite/tools/build_ios.sh                                                                                                        |"
-    echo -e "|  compile iOS armv7 library:                                                                                                          |"
-    echo -e "|     ./lite/tools/build_ios.sh  --arch=armv7                                                                                          |"
-    echo -e "|  print help information:                                                                                                             |"
-    echo -e "|     ./lite/tools/build_ios.sh help                                                                                                   |"
-    echo -e "|                                                                                                                                      |"
-    echo -e "|  optional argument:                                                                                                                  |"
-    echo -e "|     --arch: (armv8|armv7), default is armv8                                                                                          |"
-    echo -e "|     --with_cv: (OFF|ON); controls whether to compile cv functions into lib, default is OFF                                           |"
-    echo -e "|     --with_log: (OFF|ON); controls whether to print log information, default is ON                                                   |"
-    echo -e "|     --with_exception: (OFF|ON); controls whether to throw the exception when error occurs, default is OFF                            |"
-    echo -e "|     --with_extra: (OFF|ON); controls whether to publish extra operators and kernels for (sequence-related model such as OCR or NLP)  |"
-    echo -e "|                                                                                                                                      |"
-    echo -e "|  arguments of striping lib according to input model:(armv8, gcc, c++_static)                                                         |"
-    echo -e "|     ./lite/tools/build_android.sh --with_strip=ON --opt_model_dir=YourOptimizedModelDir                                              |"
-    echo -e "|     --with_strip: (OFF|ON); controls whether to strip lib accrding to input model, default is OFF                                    |"
-    echo -e "|     --opt_model_dir: (absolute path to optimized model dir) required when compiling striped library                                  |"
-    echo -e "|  detailed information about striping lib:  https://paddle-lite.readthedocs.io/zh/latest/user_guides/library_tailoring.html           |"
-    echo "----------------------------------------------------------------------------------------------------------------------------------------"
+    echo "--------------------------------------------------------------------------------------------------------------------------------------------------------"
+    echo -e "| Methods of compiling Padddle-Lite iOS library:                                                                                                       |"
+    echo "--------------------------------------------------------------------------------------------------------------------------------------------------------"
+    echo -e "|  compile iOS armv8 library:                                                                                                                          |"
+    echo -e "|     ./lite/tools/build_ios.sh                                                                                                                        |"
+    echo -e "|  compile iOS armv7 library:                                                                                                                          |"
+    echo -e "|     ./lite/tools/build_ios.sh  --arch=armv7                                                                                                          |"
+    echo -e "|  print help information:                                                                                                                             |"
+    echo -e "|     ./lite/tools/build_ios.sh help                                                                                                                   |"
+    echo -e "|                                                                                                                                                      |"
+    echo -e "|  optional argument:                                                                                                                                  |"
+    echo -e "|     --arch: (armv8|armv7), default is armv8                                                                                                          |"
+    echo -e "|     --with_cv: (OFF|ON); controls whether to compile cv functions into lib, default is OFF                                                           |"
+    echo -e "|     --with_log: (OFF|ON); controls whether to print log information, default is ON                                                                   |"
+    echo -e "|     --with_exception: (OFF|ON); controls whether to throw the exception when error occurs, default is OFF                                            |"
+    echo -e "|     --with_tls: (OFF|ON); controls whether to enable using TLS(Thread Local Storage, such C++ keywords 'thread_local' since C++11), default is ON    |"
+    echo -e "|     --with_extra: (OFF|ON); controls whether to publish extra operators and kernels for (sequence-related model such as OCR or NLP)                  |"
+    echo -e "|                                                                                                                                                      |"
+    echo -e "|  arguments of striping lib according to input model:(armv8, gcc, c++_static)                                                                         |"
+    echo -e "|     ./lite/tools/build_android.sh --with_strip=ON --opt_model_dir=YourOptimizedModelDir                                                              |"
+    echo -e "|     --with_strip: (OFF|ON); controls whether to strip lib accrding to input model, default is OFF                                                    |"
+    echo -e "|     --opt_model_dir: (absolute path to optimized model dir) required when compiling striped library                                                  |"
+    echo -e "|  detailed information about striping lib:  https://paddle-lite.readthedocs.io/zh/latest/user_guides/library_tailoring.html                           |"
+    echo "--------------------------------------------------------------------------------------------------------------------------------------------------------"
 
 }
 
@@ -149,6 +153,16 @@ function main {
                 ;;
             --with_exception=*)
                 WITH_EXCEPTION="${i#*=}"
+                shift
+                ;;
+            --with_tls=*)
+                WITH_TLS="${i#*=}"
+                if [[ $WITH_TLS == "OFF"]]; then
+                     set +x
+                     echo
+                     echo -e "warnning: OpenMP is disabled when with_tls is OFF."
+                     echo
+                fi
                 shift
                 ;;
             help)

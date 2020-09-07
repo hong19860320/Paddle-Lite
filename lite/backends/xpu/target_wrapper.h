@@ -99,7 +99,7 @@ class TargetWrapper<TARGET(kXPU)> {
   static int workspace_l3_size_per_thread;
 
  private:
-  static thread_local xdnn::Context* tls_raw_ctx_;
+  static THREAD_LOCAL xdnn::Context* tls_raw_ctx_;
 };
 
 }  // namespace lite

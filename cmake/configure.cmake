@@ -199,6 +199,13 @@ if (LITE_WITH_EXCEPTION)
   add_definitions("-DLITE_WITH_EXCEPTION")
 endif()
 
+if (LITE_WITH_TLS)
+  add_definitions("-DLITE_WITH_TLS")
+  add_definitions("-DTHREAD_LOCAL=thread_local")
+else()
+  add_definitions("-DTHREAD_LOCAL=")
+endif()
+
 if (LITE_ON_FLATBUFFERS_DESC_VIEW)
   add_definitions("-DLITE_ON_FLATBUFFERS_DESC_VIEW")
   message(STATUS "Flatbuffers will be used as cpp default program description.")

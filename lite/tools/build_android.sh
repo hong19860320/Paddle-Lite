@@ -19,6 +19,8 @@ WITH_CV=OFF
 WITH_LOG=ON
 # controls whether to throw the exception when error occurs, default is OFF 
 WITH_EXCEPTION=OFF
+# controls whether to enable using TLS(Thread Local Storage, such C++ keywords 'thread_local' since C++11), default is ON
+WITH_TLS=ON
 # options of striping lib according to input model.
 OPTMODEL_DIR=""
 WITH_STRIP=OFF
@@ -155,6 +157,7 @@ function make_tiny_publish_so {
       -DLITE_BUILD_EXTRA=$WITH_EXTRA \
       -DLITE_WITH_LOG=$WITH_LOG \
       -DLITE_WITH_EXCEPTION=$WITH_EXCEPTION \
+      -DLITE_WITH_TLS=$WITH_TLS \
       -DLITE_BUILD_TAILOR=$WITH_STRIP \
       -DLITE_OPTMODEL_DIR=$OPTMODEL_DIR \
       -DLITE_WITH_JAVA=$WITH_JAVA \
@@ -211,6 +214,7 @@ function make_full_publish_so {
       -DLITE_BUILD_EXTRA=$WITH_EXTRA \
       -DLITE_WITH_LOG=$WITH_LOG \
       -DLITE_WITH_EXCEPTION=$WITH_EXCEPTION \
+      -DLITE_WITH_TLS=$WITH_TLS \
       -DLITE_BUILD_TAILOR=$WITH_STRIP \
       -DLITE_OPTMODEL_DIR=$OPTMODEL_DIR \
       -DLITE_WITH_JAVA=$WITH_JAVA \
@@ -241,48 +245,49 @@ function make_full_publish_so {
 
 # 4.3 function of print help information
 function print_usage {
-    echo "----------------------------------------------------------------------------------------------------------------------------------------"
-    echo -e "| Methods of compiling Padddle-Lite Android library:                                                                                   |"
-    echo "----------------------------------------------------------------------------------------------------------------------------------------"
-    echo -e "|  compile android library: (armv8, gcc, c++_static)                                                                                   |"
-    echo -e "|     ./lite/tools/build_android.sh                                                                                                    |"
-    echo -e "|  print help information:                                                                                                             |"
-    echo -e "|     ./lite/tools/build_android.sh help                                                                                               |"
-    echo -e "|                                                                                                                                      |"
-    echo -e "|  optional argument:                                                                                                                  |"
-    echo -e "|     --arch: (armv8|armv7), default is armv8                                                                                          |"
-    echo -e "|     --toolchain: (gcc|clang), defalut is gcc                                                                                         |"
-    echo -e "|     --android_stl: (c++_static|c++_shared), default is c++_static                                                                    |"
-    echo -e "|     --with_java: (OFF|ON); controls whether to publish java api lib, default is ON                                                   |"
-    echo -e "|     --with_cv: (OFF|ON); controls whether to compile cv functions into lib, default is OFF                                           |"
-    echo -e "|     --with_log: (OFF|ON); controls whether to print log information, default is ON                                                   |"
-    echo -e "|     --with_exception: (OFF|ON); controls whether to throw the exception when error occurs, default is OFF                            |"
-    echo -e "|     --with_extra: (OFF|ON); controls whether to publish extra operators and kernels for (sequence-related model such as OCR or NLP)  |"
-    echo -e "|                                                                                                                                      |"
-    echo -e "|  arguments of striping lib according to input model:(armv8, gcc, c++_static)                                                         |"
-    echo -e "|     ./lite/tools/build_android.sh --with_strip=ON --opt_model_dir=YourOptimizedModelDir                                              |"
-    echo -e "|     --with_strip: (OFF|ON); controls whether to strip lib accrding to input model, default is OFF                                    |"
-    echo -e "|     --opt_model_dir: (absolute path to optimized model dir) required when compiling striped library                                  |"
-    echo -e "|  detailed information about striping lib:  https://paddle-lite.readthedocs.io/zh/latest/user_guides/library_tailoring.html           |"
-    echo -e "|                                                                                                                                      |"
-    echo -e "|  arguments of npu library compiling:(armv8, gcc, c++_static)                                                                         |"
-    echo -e "|     ./lite/tools/build_android.sh --with_huawei_kirin_npu=ON --huawei_kirin_npu_sdk_root=YourNpuSdkPath                              |"
-    echo -e "|     --with_huawei_kirin_npu: (OFF|ON); controls whether to compile lib for huawei_kirin_npu, default is OFF                          |"
-    echo -e "|     --huawei_kirin_npu_sdk_root: (path to huawei HiAi DDK file) required when compiling npu library                                  |"
-    echo -e "|             you can download huawei HiAi DDK from:  https://developer.huawei.com/consumer/cn/hiai/                                   |"
-    echo -e "|  detailed information about Paddle-Lite NPU:  https://paddle-lite.readthedocs.io/zh/latest/demo_guides/npu.html                      |"
-    echo -e "|                                                                                                                                      |"
-    echo -e "|  arguments of apu library compiling:(armv8, gcc, c++_static)                                                                         |"
-    echo -e "|     ./lite/tools/build_android.sh --with_mediatek_apu=ON --mediatek_apu_sdk_root=YourApuSdkPath                                      |"
-    echo -e "|     --with_mediatek_apu: (OFF|ON); controls whether to compile lib for mediatek_apu, default is OFF                                  |"
-    echo -e "|     --mediatek_apu_sdk_root: (path to mediatek APU SDK file) required when compiling apu library                                     |"
-    echo -e "|             you can download mediatek APU SDK from:  https://paddlelite-demo.bj.bcebos.com/devices/mediatek/apu_ddk.tar.gz           |"
-    echo -e "|  detailed information about Paddle-Lite APU:  https://paddle-lite.readthedocs.io/zh/latest/demo_guides/mediatek_apu.html             |"
-    echo -e "|                                                                                                                                      |"
-    echo -e "|  arguments of opencl library compiling:(armv8, gcc, c++_static)                                                                      |"
-    echo -e "|     ./lite/tools/build_android.sh --with_opencl=ON                                                                                   |"
-    echo -e "|     --with_opencl: (OFF|ON); controls whether to compile lib for opencl, default is OFF                                              |"
-    echo "----------------------------------------------------------------------------------------------------------------------------------------"
+    echo "------------------------------------------------------------------------------------------------------------------------------------------------------"
+    echo -e "| Methods of compiling Padddle-Lite Android library:                                                                                                  |"
+    echo "------------------------------------------------------------------------------------------------------------------------------------------------------"
+    echo -e "|  compile android library: (armv8, gcc, c++_static)                                                                                                  |"
+    echo -e "|     ./lite/tools/build_android.sh                                                                                                                   |"
+    echo -e "|  print help information:                                                                                                                            |"
+    echo -e "|     ./lite/tools/build_android.sh help                                                                                                              |"
+    echo -e "|                                                                                                                                                     |"
+    echo -e "|  optional argument:                                                                                                                                 |"
+    echo -e "|     --arch: (armv8|armv7), default is armv8                                                                                                         |"
+    echo -e "|     --toolchain: (gcc|clang), defalut is gcc                                                                                                        |"
+    echo -e "|     --android_stl: (c++_static|c++_shared), default is c++_static                                                                                   |"
+    echo -e "|     --with_java: (OFF|ON); controls whether to publish java api lib, default is ON                                                                  |"
+    echo -e "|     --with_cv: (OFF|ON); controls whether to compile cv functions into lib, default is OFF                                                          |"
+    echo -e "|     --with_log: (OFF|ON); controls whether to print log information, default is ON                                                                  |"
+    echo -e "|     --with_exception: (OFF|ON); controls whether to throw the exception when error occurs, default is OFF                                           |"
+    echo -e "|     --with_tls: (OFF|ON); controls whether to enable using TLS(Thread Local Storage, such C++ keywords 'thread_local' since C++11), default is ON   |"
+    echo -e "|     --with_extra: (OFF|ON); controls whether to publish extra operators and kernels for (sequence-related model such as OCR or NLP)                 |"
+    echo -e "|                                                                                                                                                     |"
+    echo -e "|  arguments of striping lib according to input model:(armv8, gcc, c++_static)                                                                        |"
+    echo -e "|     ./lite/tools/build_android.sh --with_strip=ON --opt_model_dir=YourOptimizedModelDir                                                             |"
+    echo -e "|     --with_strip: (OFF|ON); controls whether to strip lib accrding to input model, default is OFF                                                   |"
+    echo -e "|     --opt_model_dir: (absolute path to optimized model dir) required when compiling striped library                                                 |"
+    echo -e "|  detailed information about striping lib:  https://paddle-lite.readthedocs.io/zh/latest/user_guides/library_tailoring.html                          |"
+    echo -e "|                                                                                                                                                     |"
+    echo -e "|  arguments of npu library compiling:(armv8, gcc, c++_static)                                                                                        |"
+    echo -e "|     ./lite/tools/build_android.sh --with_huawei_kirin_npu=ON --huawei_kirin_npu_sdk_root=YourNpuSdkPath                                             |"
+    echo -e "|     --with_huawei_kirin_npu: (OFF|ON); controls whether to compile lib for huawei_kirin_npu, default is OFF                                         |"
+    echo -e "|     --huawei_kirin_npu_sdk_root: (path to huawei HiAi DDK file) required when compiling npu library                                                 |"
+    echo -e "|             you can download huawei HiAi DDK from:  https://developer.huawei.com/consumer/cn/hiai/                                                  |"
+    echo -e "|  detailed information about Paddle-Lite NPU:  https://paddle-lite.readthedocs.io/zh/latest/demo_guides/npu.html                                     |"
+    echo -e "|                                                                                                                                                     |"
+    echo -e "|  arguments of apu library compiling:(armv8, gcc, c++_static)                                                                                        |"
+    echo -e "|     ./lite/tools/build_android.sh --with_mediatek_apu=ON --mediatek_apu_sdk_root=YourApuSdkPath                                                     |"
+    echo -e "|     --with_mediatek_apu: (OFF|ON); controls whether to compile lib for mediatek_apu, default is OFF                                                 |"
+    echo -e "|     --mediatek_apu_sdk_root: (path to mediatek APU SDK file) required when compiling apu library                                                    |"
+    echo -e "|             you can download mediatek APU SDK from:  https://paddlelite-demo.bj.bcebos.com/devices/mediatek/apu_ddk.tar.gz                          |"
+    echo -e "|  detailed information about Paddle-Lite APU:  https://paddle-lite.readthedocs.io/zh/latest/demo_guides/mediatek_apu.html                            |"
+    echo -e "|                                                                                                                                                     |"
+    echo -e "|  arguments of opencl library compiling:(armv8, gcc, c++_static)                                                                                     |"
+    echo -e "|     ./lite/tools/build_android.sh --with_opencl=ON                                                                                                  |"
+    echo -e "|     --with_opencl: (OFF|ON); controls whether to compile lib for opencl, default is OFF                                                             |"
+    echo "------------------------------------------------------------------------------------------------------------------------------------------------------"
     echo
 }
 
@@ -356,6 +361,17 @@ function main {
                      echo -e "Error: only clang provide C++ exception handling support for 32-bit ARM."
                      echo
                      exit 1
+                fi
+                shift
+                ;;
+            # ON or OFF, default ON
+            --with_tls=*)
+                WITH_TLS="${i#*=}"
+                if [[ $WITH_TLS == "OFF"]]; then
+                     set +x
+                     echo
+                     echo -e "warnning: OpenMP is disabled when with_tls is OFF."
+                     echo
                 fi
                 shift
                 ;;

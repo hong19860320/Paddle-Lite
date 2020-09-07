@@ -19,6 +19,8 @@ WITH_CV=OFF
 WITH_LOG=ON
 # controls whether to throw the exception when error occurs, default is OFF 
 WITH_EXCEPTION=OFF
+# controls whether to enable using TLS(Thread Local Storage, such C++ keywords 'thread_local' since C++11), default is ON
+WITH_TLS=ON
 # options of striping lib according to input model.
 WITH_STRIP=OFF
 OPTMODEL_DIR=""
@@ -63,6 +65,7 @@ function init_cmake_mutable_options {
                         -DLITE_WITH_CV=$WITH_CV \
                         -DLITE_WITH_LOG=$WITH_LOG \
                         -DLITE_WITH_EXCEPTION=$WITH_EXCEPTION \
+                        -DLITE_WITH_TLS=$WITH_TLS \
                         -DLITE_BUILD_TAILOR=$WITH_STRIP \
                         -DLITE_OPTMODEL_DIR=$OPTMODEL_DIR \
                         -DLITE_WITH_OPENCL=$WITH_OPENCL \
@@ -217,6 +220,7 @@ function print_usage {
     echo -e "|     --with_cv: (OFF|ON); controls whether to compile cv functions into lib, default is OFF                                                           |"
     echo -e "|     --with_log: (OFF|ON); controls whether to print log information, default is ON                                                                   |"
     echo -e "|     --with_exception: (OFF|ON); controls whether to throw the exception when error occurs, default is OFF                                            |"
+    echo -e "|     --with_tls: (OFF|ON); controls whether to enable using TLS(Thread Local Storage, such C++ keywords 'thread_local' since C++11), default is ON    |"
     echo -e "|                                                                                                                                                      |"
     echo -e "|  arguments of striping lib according to input model:                                                                                                 |"
     echo -e "|     ./lite/tools/build_linux.sh --with_strip=ON --opt_model_dir=YourOptimizedModelDir                                                                |"
@@ -291,6 +295,17 @@ function main {
             # ON or OFF, default OFF
             --with_exception=*)
                 WITH_EXCEPTION="${i#*=}"
+                shift
+                ;;
+            # ON or OFF, default ON
+            --with_tls=*)
+                WITH_TLS="${i#*=}"
+                if [[ $WITH_TLS == "OFF"]]; then
+                     set +x
+                     echo
+                     echo -e "warnning: OpenMP is disabled when with_tls is OFF."
+                     echo
+                fi
                 shift
                 ;;
             # ON or OFF, default OFF
