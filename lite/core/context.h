@@ -44,7 +44,6 @@
 #include "lite/utils/all.h"
 #include "lite/utils/env.h"
 #include "lite/utils/macros.h"
-
 namespace paddle {
 namespace lite {
 
